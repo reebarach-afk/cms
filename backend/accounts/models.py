@@ -16,5 +16,11 @@ class User(AbstractUser):
         default=Role.ADMIN,
     )
 
+    def save(self, *args, **kwargs):
+        # Superusers always get the admin role
+        if self.is_superuser:
+            self.role = self.Role.ADMIN
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.username} ({self.role})"

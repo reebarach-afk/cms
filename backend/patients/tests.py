@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -8,7 +9,13 @@ class PatientAPITests(APITestCase):
     URL = "/api/patients/"
 
     def setUp(self):
-        """Create a baseline patient for retrieve/update/delete tests."""
+        """Log in as a receptionist, then create a baseline patient."""
+        User = get_user_model()
+        self.user = User.objects.create_user(
+            username="reception1", password="Pass12345", role="receptionist"
+        )
+        self.client.force_authenticate(user=self.user)
+
         self.patient_data = {
             "name": "John Doe",
             "age": 30,
@@ -19,6 +26,8 @@ class PatientAPITests(APITestCase):
         resp = self.client.post(self.URL, self.patient_data, format="json")
         self.patient_id = resp.data["id"]
         self.detail_url = f"{self.URL}{self.patient_id}/"
+
+    # ---- Happy-path CRUD ----
 
     # ---- Happy-path CRUD ----
 
